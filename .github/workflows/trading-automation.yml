@@ -1,0 +1,96 @@
+ name: SentientEdge Trading Automation
+
+  on:
+    schedule:
+      # 10:00 AM EST (15:00 UTC) - Pre-market analysis
+      - cron: '0 15 * * 1-5'
+      # 1:00 PM EST (18:00 UTC) - Midday session  
+      - cron: '0 18 * * 1-5'
+      # 3:30 PM EST (20:30 UTC) - Pre-close session
+      - cron: '30 20 * * 1-5'
+
+    # Allow manual triggers
+    workflow_dispatch:
+      inputs:
+        session_type:
+          description: 'Type of trading session'
+          required: true
+          default: 'manual'
+          type: choice
+          options:
+          - manual
+          - premarket
+          - midday
+          - preclose
+
+  jobs:
+    trading-session:
+      runs-on: ubuntu-latest
+
+      steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Determine session type
+        id: session-type
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "session_type=${{ github.event.inputs.session_type }}" >> $GITHUB_OUTPUT
+          else
+            # Determine session type based on time
+            hour=$(date -u +%H)
+            if [ "$hour" = "15" ]; then
+              echo "session_type=premarket" >> $GITHUB_OUTPUT
+            elif [ "$hour" = "18" ]; then
+              echo "session_type=midday" >> $GITHUB_OUTPUT
+            elif [ "$hour" = "20" ]; then
+              echo "session_type=preclose" >> $GITHUB_OUTPUT
+            else
+              echo "session_type=manual" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+      - name: Run trading session
+        env:
+          ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+          ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+          WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
+        run: |
+          echo "🚀 Starting ${{ steps.session-type.outputs.session_type }} trading session..."
+          python github_actions_runner.py --session-type ${{ steps.session-type.outputs.session_type }}
+
+      - name: Upload session logs
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: trading-logs-${{ github.run_number }}
+          path: |
+            *.json
+            *.log
+            *.txt
+          retention-days: 30
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "❌ Trading session failed!"
+          echo "Check the logs for details."

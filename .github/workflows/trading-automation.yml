@@ -22,14 +22,6 @@ name: SentientEdge Trading Automation
     trading-session:
       runs-on: ubuntu-latest
       steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -42,12 +34,11 @@ name: SentientEdge Trading Automation
           WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
           WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
         run: |
-          echo "🚀 Starting ${{ github.event.inputs.session_type || 'scheduled' }} trading session..."
+          echo "🚀 Starting trading session..."
           python -c "
           import os, requests, json
           from datetime import datetime
 
-          # Simple trading data
           data = {
               'session_type': 'github_actions_test',
               'timestamp': datetime.now().isoformat(),
@@ -57,12 +48,14 @@ name: SentientEdge Trading Automation
               'orders': []
           }
 
-          # Send webhook
           response = requests.post(
               os.getenv('WEBHOOK_URL'),
               json=data,
               headers={'Content-Type': 'application/json', 'X-Secret-Key': os.getenv('WEBHOOK_SECRET')},
               timeout=30
           )
+          print(f'Webhook response: {response.status_code} {response.text}')
+          "
+
           print(f'Webhook response: {response.status_code} {response.text}')
           "

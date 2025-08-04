@@ -1,10 +1,9 @@
 name: SentientEdge Trading Automation
-
-  on:
+on:
     schedule:
-      - cron: '0 15 * * 1-5'  # 10:00 AM EST
-      - cron: '0 18 * * 1-5'  # 1:00 PM EST  
-      - cron: '30 20 * * 1-5' # 3:30 PM EST
+      - cron: '0 15 * * 1-5'
+      - cron: '0 18 * * 1-5'
+      - cron: '30 20 * * 1-5'
     workflow_dispatch:
       inputs:
         session_type:
@@ -13,49 +12,40 @@ name: SentientEdge Trading Automation
           default: 'manual'
           type: choice
           options:
-          - manual
-          - premarket
-          - midday
-          - preclose
-
-  jobs:
+            - manual
+            - premarket
+            - midday
+            - preclose
+jobs:
     trading-session:
       runs-on: ubuntu-latest
       steps:
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install alpaca-py yfinance requests
+        - name: Install dependencies
+          run: |
+            python -m pip install --upgrade pip
+            pip install requests
+        - name: Run trading session
+          env:
+            WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+            WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
+          run: |
+            python -c "
+            import os, requests, json
+            from datetime import datetime
+            data = {
+                'session_type': 'github_test',
+                'timestamp': datetime.now().isoformat(),
+                'test': True
+            }
+            response = requests.post(
+                os.getenv('WEBHOOK_URL'),
+                json=data,
+                headers={'X-Secret-Key': os.getenv('WEBHOOK_SECRET')},
+                timeout=30
+            )
+            print(f'Success: {response.status_code}')
+            "
 
-      - name: Run trading session
-        env:
-          ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
-          ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
-          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
-          WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
-        run: |
-          echo "🚀 Starting trading session..."
-          python -c "
-          import os, requests, json
-          from datetime import datetime
-
-          data = {
-              'session_type': 'github_actions_test',
-              'timestamp': datetime.now().isoformat(),
-              'recommendations': [{'symbol': 'TEST', 'action': 'MONITOR'}],
-              'analysis': {'platform': 'github_actions'},
-              'performance': {'test': True},
-              'orders': []
-          }
-
-          response = requests.post(
-              os.getenv('WEBHOOK_URL'),
-              json=data,
-              headers={'Content-Type': 'application/json', 'X-Secret-Key': os.getenv('WEBHOOK_SECRET')},
-              timeout=30
-          )
-          print(f'Webhook response: {response.status_code} {response.text}')
-          "
 
           print(f'Webhook response: {response.status_code} {response.text}')
           "

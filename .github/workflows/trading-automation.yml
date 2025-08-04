@@ -21,31 +21,14 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         - name: Install dependencies
-          run: |
-            python -m pip install --upgrade pip
-            pip install requests
-        - name: Run trading session
+          run: pip install requests
+        - name: Send webhook
           env:
             WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
             WEBHOOK_SECRET: ${{ secrets.WEBHOOK_SECRET }}
           run: |
-            python -c "
-            import os, requests, json
-            from datetime import datetime
-            data = {
-                'session_type': 'github_test',
-                'timestamp': datetime.now().isoformat(),
-                'test': True
-            }
-            response = requests.post(
-                os.getenv('WEBHOOK_URL'),
-                json=data,
-                headers={'X-Secret-Key': os.getenv('WEBHOOK_SECRET')},
-                timeout=30
-            )
-            print(f'Success: {response.status_code}')
-            "
+            curl -X POST "$WEBHOOK_URL" \
+              -H "Content-Type: application/json" \
+              -H "X-Secret-Key: $WEBHOOK_SECRET" \
+              -d '{"session_type":"github_test","timestamp":"'$(date -u +%Y-%m-%dT%H:%M:%S)'","test":true}'
 
-
-          print(f'Webhook response: {response.status_code} {response.text}')
-          "

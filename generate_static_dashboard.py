@@ -21,6 +21,9 @@ def generate_static_dashboard():
         paper=True
     )
     
+    # Initialize trader for algorithm recommendations
+    trader = AlpacaSentientEdgeTrader(confidence_threshold=0.60)
+    
     # Account status
     account = client.get_account()
     equity = float(account.equity)
@@ -63,6 +66,35 @@ def generate_static_dashboard():
     spy_return = ((spy_data['Close'].iloc[-1] - spy_data['Close'].iloc[-2]) / spy_data['Close'].iloc[-2] * 100) if len(spy_data) >= 2 else 0
     qqq_return = ((qqq_data['Close'].iloc[-1] - qqq_data['Close'].iloc[-2]) / qqq_data['Close'].iloc[-2] * 100) if len(qqq_data) >= 2 else 0
     current_vix = vix_data['Close'].iloc[-1] if len(vix_data) > 0 else 20
+    
+    # Get algorithmic recommendations
+    # Define universe of stocks to analyze
+    major_stocks = [
+        'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'META', 'TSLA', 'NFLX',
+        'AMD', 'AVGO', 'CRM', 'ADBE', 'NOW', 'INTU', 'PYPL', 'UBER', 'ABNB',
+        'SHOP', 'NET', 'TTD', 'CRWD', 'SNOW', 'DXCM', 'PLTR', 'RBLX', 'COIN',
+        'JPM', 'BAC', 'WMT', 'HD', 'PG', 'JNJ', 'V', 'MA', 'UNH', 'LLY',
+        'COST', 'MCD', 'DIS', 'KO', 'PEP', 'ORCL', 'CSCO', 'IBM', 'CVX', 'XOM',
+        'SPY', 'QQQ', 'IWM', 'XLF', 'XLK', 'XLE', 'XLV', 'XLI', 'XLY', 'XLP'
+    ]
+    
+    # Get recommendations
+    top_longs = []
+    top_shorts = []
+    
+    try:
+        session = trader.execute_trading_session(major_stocks)
+        if session.recommendations:
+            # Separate buy and sell recommendations
+            buy_recs = [r for r in session.recommendations if r.recommendation in ['BUY', 'STRONG_BUY']]
+            sell_recs = [r for r in session.recommendations if r.recommendation in ['SELL', 'STRONG_SELL']]
+            
+            # Sort by confidence and get top 10
+            top_longs = sorted(buy_recs, key=lambda x: x.confidence, reverse=True)[:10]
+            top_shorts = sorted(sell_recs, key=lambda x: x.confidence, reverse=True)[:10]
+    except Exception as e:
+        print(f"Warning: Could not get algorithm recommendations: {e}")
+        # Continue with empty recommendations rather than failing
     
     # Generate HTML
     html_content = f"""
@@ -169,6 +201,92 @@ def generate_static_dashboard():
             </table>
         </div>
         
+        <div class="grid">
+            <div class="card">
+                <h3>🔥 Top 10 Long Candidates</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Symbol</th>
+                            <th>Action</th>
+                            <th>Conviction</th>
+                            <th>Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+"""
+    
+    # Add top long recommendations
+    if top_longs:
+        for i, rec in enumerate(top_longs, 1):
+            action_icon = "🚀" if rec.recommendation == "STRONG_BUY" else "📈"
+            confidence_pct = rec.confidence * 100
+            confidence_class = "positive" if confidence_pct >= 75 else "neutral"
+            html_content += f"""
+                        <tr>
+                            <td>{i}</td>
+                            <td class="symbol">{rec.symbol}</td>
+                            <td>{action_icon} {rec.recommendation}</td>
+                            <td class="{confidence_class}">{confidence_pct:.1f}%</td>
+                            <td>${rec.current_price:.2f}</td>
+                        </tr>
+"""
+    else:
+        html_content += """
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: #666;">No long recommendations available</td>
+                        </tr>
+"""
+    
+    html_content += """
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="card">
+                <h3>📉 Top 10 Short Candidates</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Symbol</th>
+                            <th>Action</th>
+                            <th>Conviction</th>
+                            <th>Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+"""
+    
+    # Add top short recommendations
+    if top_shorts:
+        for i, rec in enumerate(top_shorts, 1):
+            action_icon = "💥" if rec.recommendation == "STRONG_SELL" else "📉"
+            confidence_pct = rec.confidence * 100
+            confidence_class = "negative" if confidence_pct >= 75 else "neutral"
+            html_content += f"""
+                        <tr>
+                            <td>{i}</td>
+                            <td class="symbol">{rec.symbol}</td>
+                            <td>{action_icon} {rec.recommendation}</td>
+                            <td class="{confidence_class}">{confidence_pct:.1f}%</td>
+                            <td>${rec.current_price:.2f}</td>
+                        </tr>
+"""
+    else:
+        html_content += """
+                        <tr>
+                            <td colspan="5" style="text-align: center; color: #666;">No short recommendations available</td>
+                        </tr>
+"""
+    
+    html_content += f"""
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
         <div class="card" style="text-align: center;">
             <p>🤖 Generated by GitHub Actions | Hosted on GitHub Pages</p>
             <p style="font-size: 12px; color: #666;">Updates automatically every 5 minutes during market hours</p>
@@ -178,12 +296,11 @@ def generate_static_dashboard():
 </html>
 """
     
-    # Write to docs/index.html for GitHub Pages
-    os.makedirs('docs', exist_ok=True)
-    with open('docs/index.html', 'w') as f:
+    # Write to root index.html for GitHub Pages
+    with open('index.html', 'w') as f:
         f.write(html_content)
     
-    print(f"✅ Static dashboard generated: docs/index.html")
+    print(f"✅ Static dashboard generated: index.html")
     print(f"📊 Account: ${equity:,.0f} | Positions: {len(positions)} | SPY: {spy_return:+.1f}% | QQQ: {qqq_return:+.1f}%")
 
 if __name__ == "__main__":

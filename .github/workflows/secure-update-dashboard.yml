@@ -1,0 +1,42 @@
+name: Update Static Dashboard
+
+on:
+  schedule:
+    # Update dashboard every 5 minutes during market hours (9:30 AM - 4:00 PM EST)
+    - cron: '*/5 14-21 * * 1-5'  # 9:30 AM - 4:00 PM EST (14:30-21:00 UTC)
+  
+  # Manual trigger
+  workflow_dispatch:
+
+jobs:
+  update-dashboard:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Generate static dashboard
+      env:
+        ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
+        ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+      run: |
+        python generate_static_dashboard.py
+        
+    - name: Commit and push dashboard
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add index.html
+        git diff --staged --quiet || git commit -m "📊 Update dashboard: $(date)"
+        git push

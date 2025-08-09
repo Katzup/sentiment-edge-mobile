@@ -71,8 +71,8 @@ jobs:
         
     - name: Run Enhanced Two-Tier Trading Session
       env:
-        ALPACA_API_KEY: ${{PKU3ZF81H4OLIPPRLEUD}}
-        ALPACA_SECRET_KEY: ${{TMf17fyJySrHOLSmKbLYFampVaHOXArtbjMiHeoW}}
+        ALPACA_API_KEY: ${{secrets.PKU3ZF81H4OLIPPRLEUD}}
+        ALPACA_SECRET_KEY: ${{secrets.TMf17fyJySrHOLSmKbLYFampVaHOXArtbjMiHeoW}}
         SESSION_TYPE: ${{ steps.session-type.outputs.session_type }}
       run: |
         python enhanced_two_tier_momentum.py

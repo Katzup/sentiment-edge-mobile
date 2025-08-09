@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SentientEdge Trading Dashboard</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="refresh" content="300"> <!-- Auto-refresh every 5 minutes -->
+    <style>
+        body { font-family: -apple-system, system-ui, sans-serif; margin: 0; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header { background: rgba(255,255,255,0.95); padding: 25px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); margin-bottom: 25px; }
+        .header h1 { margin: 0; color: #1a202c; font-size: 32px; }
+        .header p { margin: 10px 0 0 0; color: #4a5568; }
+        .card { background: rgba(255,255,255,0.95); padding: 25px; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.1); margin-bottom: 25px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; }
+        .metric { display: inline-block; margin-right: 30px; }
+        .metric-label { font-size: 14px; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+        .metric-value { font-size: 28px; font-weight: bold; margin-top: 5px; }
+        .positive { color: #22c55e; }
+        .negative { color: #ef4444; }
+        .neutral { color: #6b7280; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+        th { background: #f9fafb; font-weight: 600; color: #374151; }
+        .symbol { font-weight: bold; font-family: 'Monaco', 'Consolas', monospace; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 SentientEdge Trading Dashboard (GitHub Pages)</h1>
+            <p>Static Dashboard | Last Updated: 2025-08-08 16:01:31 UTC | Auto-refresh: 5min</p>
+        </div>
+        
+        <div class="grid">
+            <div class="card">
+                <h3>💰 Account Summary</h3>
+                <div class="metric">
+                    <div class="metric-label">Total Equity</div>
+                    <div class="metric-value">$98,854.96</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Cash</div>
+                    <div class="metric-value negative">$-7,328.31</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">Margin</div>
+                    <div class="metric-value neutral">7.4%</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3>📈 Market Benchmarks</h3>
+                <div class="metric">
+                    <div class="metric-label">SPY Daily</div>
+                    <div class="metric-value positive">+0.78%</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">QQQ Daily</div>
+                    <div class="metric-value positive">+0.93%</div>
+                </div>
+                <div class="metric">
+                    <div class="metric-label">VIX</div>
+                    <div class="metric-value neutral">15.6</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h3>🏆 Current Positions (7)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Symbol</th>
+                        <th>Qty</th>
+                        <th>Avg Cost</th>
+                        <th>Current</th>
+                        <th>Value</th>
+                        <th>P&L</th>
+                    </tr>
+                </thead>
+                <tbody>
+
+                    <tr>
+                        <td class="symbol">GOOGL</td>
+                        <td>159</td>
+                        <td>$199.97</td>
+                        <td>$201.38</td>
+                        <td>$32,019</td>
+                        <td class="positive">$224 (+0.7%)</td>
+                    </tr>
+
+                    <tr>
+                        <td class="symbol">QQQ</td>
+                        <td>55</td>
+                        <td>$570.48</td>
+                        <td>$574.91</td>
+                        <td>$31,620</td>
+                        <td class="positive">$244 (+0.8%)</td>
+                    </tr>
+
+                    <tr>
+                        <td class="symbol">AMD</td>
+                        <td>122</td>
+                        <td>$173.95</td>
+                        <td>$172.8</td>
+                        <td>$21,082</td>
+                        <td class="negative">$-140 (-0.7%)</td>
+                    </tr>
+
+                    <tr>
+                        <td class="symbol">NET</td>
+                        <td>40</td>
+                        <td>$210.49</td>
+                        <td>$204.6</td>
+                        <td>$8,184</td>
+                        <td class="negative">$-236 (-2.8%)</td>
+                    </tr>
+
+                    <tr>
+                        <td class="symbol">GLD</td>
+                        <td>25</td>
+                        <td>$310.52</td>
+                        <td>$313.01</td>
+                        <td>$7,825</td>
+                        <td class="positive">$62 (+0.8%)</td>
+                    </tr>
+
+                    <tr>
+                        <td class="symbol">META</td>
+                        <td>4</td>
+                        <td>$774.25</td>
+                        <td>$769.56</td>
+                        <td>$3,078</td>
+                        <td class="negative">$-19 (-0.6%)</td>
+                    </tr>
+
+                    <tr>
+                        <td class="symbol">NVDA</td>
+                        <td>13</td>
+                        <td>$181.88</td>
+                        <td>$182.67</td>
+                        <td>$2,375</td>
+                        <td class="positive">$10 (+0.4%)</td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="card" style="text-align: center;">
+            <p>🤖 Generated by GitHub Actions | Hosted on GitHub Pages</p>
+            <p style="font-size: 12px; color: #666;">Updates automatically every 5 minutes during market hours</p>
+        </div>
+    </div>
+</body>
+</html>

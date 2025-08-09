@@ -1,13 +1,4 @@
-# GitHub Actions Workflows to Add
-
-## Instructions:
-1. Go to https://github.com/Katzup/sentiment-edge-mobile/actions
-2. Click "New workflow" → "set up a workflow yourself"
-3. Create each file below with the exact name and content
-
----
-
-## File 1: `.github/workflows/update-dashboard.yml`
+# File 1: `.github/workflows/update-dashboard.yml`
 
 ```yaml
 name: Update Static Dashboard
@@ -36,12 +27,12 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install alpaca-py yfinance python-dotenv
+        pip install -r requirements.txt
         
     - name: Generate static dashboard
       env:
-        ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
-        ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+        ALPACA_API_KEY=PKU3ZF81H4OLIPPRLEUD
+        ALPACA_SECRET_KEY=TMf17fyJySrHOLSmKbLYFampVaHOXArtbjMiHeoW
       run: |
         python generate_static_dashboard.py
         
@@ -60,3 +51,4 @@ jobs:
         publish_dir: ./docs
         force_orphan: true
 ```
+

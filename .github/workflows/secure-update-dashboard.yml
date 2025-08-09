@@ -28,8 +28,8 @@ jobs:
         
     - name: Generate static dashboard
       env:
-        ALPACA_API_KEY: ${{ secrets.ALPACA_API_KEY }}
-        ALPACA_SECRET_KEY: ${{ secrets.ALPACA_SECRET_KEY }}
+        ALPACA_API_KEY: ${{ secrets.PKU3ZF81H4OLIPPRLEUD }}
+        ALPACA_SECRET_KEY: ${{ secrets.TMf17fyJySrHOLSmKbLYFampVaHOXArtbjMiHeoW }}
       run: |
         python generate_static_dashboard.py
         

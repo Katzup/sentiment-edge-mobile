@@ -268,11 +268,11 @@ def generate_static_dashboard():
                 hash_adjustment = (int(hashlib.md5(symbol.encode()).hexdigest(), 16) % 11) - 5
                 adjusted_score = score + hash_adjustment
                 
-                # FIXED: Convert raw score to proper 0-100% conviction using sigmoid normalization
-                # This prevents mathematically impossible values >100%
-                import math
-                sigmoid_conviction = 100 / (1 + math.exp(-(adjusted_score - 62.5) / 15))  # Center around 62.5, scale by 15
-                confidence_pct = max(0, min(100, sigmoid_conviction))  # Ensure valid 0-100% range
+                # TRUE conviction scoring - no artificial clustering
+                # Linear scaling preserves meaningful differentiation
+                # Map raw score (0-130 range) to conviction (0-100%)
+                conviction_pct = (adjusted_score / 130) * 100
+                confidence_pct = max(0, min(100, conviction_pct))
                 
                 confidence = min(1.0, confidence_pct / 100)  # Cap at 1.0 for compatibility only
                 
